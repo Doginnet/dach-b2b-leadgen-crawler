@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DACH B2B LeadGen &amp; Ad-Tech Intelligence Console (1M+ Rows)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b1120'/%3E%3Cpath d='M7 22V10h6a6 6 0 0 1 0 12H7zm4-3.5h2a2.5 2.5 0 0 0 0-5h-2v5zM21 10h4v12h-4V10z' fill='%2338bdf8'/%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --panel-alt: #172033;
+      --border: #24324a;
+      --text: #e5edf8;
+      --muted: #8ea0bc;
+      --accent: #38bdf8;
+      --accent-dark: #0284c7;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a78bfa;
+      --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+      --sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #13213c 0%, var(--bg) 45%);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(8px);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--panel-alt);
+      color: var(--accent);
+    }
+    .badge-pill.ok { color: var(--green); border-color: rgba(34,197,94,0.35); }
+    .badge-pill.warn { color: var(--amber); border-color: rgba(245,158,11,0.35); }
+    main { max-width: 1540px; margin: 0 auto; padding: 20px 28px 44px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .kpi-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .kpi-value { font-family: var(--mono); font-size: 24px; font-weight: 700; margin: 5px 0 3px; color: #fff; }
+    .kpi-sub { color: var(--muted); font-size: 12px; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 10px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .filter-bar {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: end;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: var(--sans);
+    }
+    input:focus, select:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+    .check-group {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding-bottom: 6px;
+    }
+    .check-group label {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text);
+      text-transform: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button.btn {
+      background: var(--accent-dark);
+      color: #fff;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+    button.btn:hover { background: #0369a1; }
+    button.btn.secondary {
+      background: var(--panel-alt);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    button.btn.secondary:hover { border-color: var(--accent); }
+
+    .meta-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 12.5px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      background: var(--panel-alt);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(36, 50, 74, 0.6);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    tr:hover td { background: rgba(56, 189, 248, 0.04); }
+
+    .score-badge {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .score-hot { background: rgba(34, 197, 94, 0.16); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+    .score-mid { background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .score-low { background: rgba(142, 160, 188, 0.14); color: var(--muted); border: 1px solid var(--border); }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin: 1px 3px 2px 0;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .tag.cms { color: var(--accent); border-color: rgba(56, 189, 248, 0.35); }
+    .tag.pixel { color: #c4b5fd; border-color: rgba(167, 139, 250, 0.35); }
+    .tag.gap { color: #fda4af; border-color: rgba(244, 63, 94, 0.35); background: rgba(244, 63, 94, 0.09); }
+    .tag.tier-cffi { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
+
+    .domain-link { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .domain-link:hover { text-decoration: underline; }
+    .sub-line { color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 1050px) { .split-grid { grid-template-columns: 1fr; } }
+    .card-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .card-box h3 { margin: 0 0 10px; font-size: 15px; }
+    pre.console-box {
+      background: #05080f;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #93c5fd;
+      max-height: 360px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      margin: 12px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-title">
+      <span>DACH B2B LeadGen &amp; Ad-Tech Intelligence</span>
+      <span class="badge-pill" id="olapSpeedBadge">DuckDB OLAP: -- ms</span>
+      <span class="badge-pill" id="redisBadge">Redis Frontier: Standalone</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn secondary" onclick="downloadFilteredCsv()">Export Filtered CSV</button>
+      <button class="btn" onclick="window.location.href='/api/v1/export/parquet'">Download ZSTD Parquet</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">1M Handelsregister Lakehouse</div>
+        <div class="kpi-value" id="kpiRegistryRows">0</div>
+        <div class="kpi-sub" id="kpiRegistryCeo">0 with court-verified CEO</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">DACH Domain Frontier (.de/.at/.ch)</div>
+        <div class="kpi-value" id="kpiFrontierTotal">0</div>
+        <div class="kpi-sub" id="kpiFrontierLinked">0 pre-linked to HRB/HRA</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Live Enriched B2B Leads</div>
+        <div class="kpi-value" id="kpiLeadsTotal">0</div>
+        <div class="kpi-sub" id="kpiLeadsContacts">0 emails | 0 CEOs</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Agency Hot Leads (Score &gt;= 75)</div>
+        <div class="kpi-value" id="kpiHotLeads">0</div>
+        <div class="kpi-sub" id="kpiAvgScore">Avg score: 0.0 / 100</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Adaptive TLS Escalation</div>
+        <div class="kpi-value" id="kpiEscalated">0</div>
+        <div class="kpi-sub" id="kpiEcomCount">0 E-Commerce storefronts</div>
+      </div>
+    </section>
+
+    <nav class="tabs">
+      <button class="tab-btn active" onclick="switchTab('leads', this)">1. Ad-Tech &amp; B2B Lead Explorer</button>
+      <button class="tab-btn" onclick="switchTab('registry', this)">2. 1,000,000+ Handelsregister OLAP Search</button>
+      <button class="tab-btn" onclick="switchTab('cluster', this)">3. Scrapy Worker &amp; n8n Outreach Router</button>
+    </nav>
+
+    <!-- TAB 1: B2B LEADS -->
+    <section id="tab-leads" class="tab-pane active">
+      <div class="filter-bar">
+        <div>
+          <label for="fSearch">Search Domain / Firma / CEO / City</label>
+          <input type="text" id="fSearch" placeholder="e.g. thomann, GmbH, Berlin..." onkeydown="if(event.key==='Enter')loadLeads()" />
+        </div>
+        <div>
+          <label for="fSegment">Agency Pitch Segment (Ad-Gap)</label>
+          <select id="fSegment" onchange="loadLeads()">
+            <option value="">All Segments</option>
+            <option value="PAID_SEARCH_MISSING_SOCIAL">Google Ads Active -> Missing Meta/TikTok</option>
+            <option value="PAID_SOCIAL_MISSING_SEARCH">Paid Social Active -> Missing Google Ads</option>
+            <option value="ECOM_NO_RETENTION_CRM">E-Commerce -> Missing Klaviyo/HubSpot CRM</option>
+            <option value="ORGANIC_ECOM_NO_PIXELS">Organic E-Commerce -> Zero Paid Pixels</option>
+            <option value="B2B_HIGH_TICKET_GAPS">DACH B2B -> Missing LinkedIn / CRM</option>
+            <option value="FULL_STACK_MATURE">Full Multi-Channel Stack</option>
+          </select>
+        </div>
+        <div>
+          <label for="fCms">CMS / E-Commerce Engine</label>
+          <select id="fCms" onchange="loadLeads()">
+            <option value="">Any Platform</option>
+            <option value="Shopware">Shopware</option>
+            <option value="Shopify">Shopify</option>
+            <option value="WooCommerce">WooCommerce</option>
+            <option value="Magento">Magento</option>
+            <option value="TYPO3">TYPO3</option>
+            <option value="WordPress">WordPress</option>
+            <option value="Webflow">Webflow</option>
+          </select>
+        </div>
+        <div>
+          <label for="fReqPixel">Active Ad Pixel</label>
+          <select id="fReqPixel" onchange="loadLeads()">
+            <option value="">Any</option>
+            <option value="google_ads">Has Google Ads</option>
+            <option value="meta">Has Meta Pixel</option>
+            <option value="gtm">Has Google Tag Manager</option>
+            <option value="ga4">Has GA4</option>
+            <option value="tiktok">Has TikTok Pixel</option>
+            <option value="linkedin">Has LinkedIn Insight</option>
+          </select>
+        </div>
+        <div>
+          <label for="fMissPixel">Missing Pixel (Sales Gap)</label>
+          <select id="fMissPixel" onchange="loadLeads()">
+            <option value="">None</option>
+            <option value="meta">NOT Meta Pixel</option>
+            <option value="tiktok">NOT TikTok Pixel</option>
+            <option value="google_ads">NOT Google Ads</option>
+            <option value="linkedin">NOT LinkedIn Insight</option>
+          </select>
+        </div>
+        <div>
+          <label for="fMinScore">Min Lead Score</label>
+          <input type="number" id="fMinScore" value="0" min="0" max="100" step="5" onchange="loadLeads()" />
+        </div>
+        <div class="check-group">
+          <label><input type="checkbox" id="fHasEmail" onchange="loadLeads()" /> Email</label>
+          <label><input type="checkbox" id="fHasCeo" onchange="loadLeads()" /> CEO</label>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="loadLeads()">Apply Filters</button>
+          <button class="btn secondary" onclick="resetLeadFilters()">Reset</button>
+        </div>
+      </div>
+
+      <div class="meta-strip">
+        <span id="leadsResultMeta">Loading leads...</span>
+        <span>Sorted by <strong>Lead Score DESC</strong> (Deterministic §5 DDG + 27 Ad-Tech Signatures)</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Score</th>
+              <th>Domain &amp; Legal Entity</th>
+              <th>Decision Maker (CEO) &amp; Contacts</th>
+              <th>CMS / CRM / CMP</th>
+              <th>Active Pixels</th>
+              <th>Agency Pitch Segment &amp; Angle</th>
+              <th>Transport</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 2: 1M HANDELSREGISTER -->
+    <section id="tab-registry" class="tab-pane">
+      <div class="filter-bar">
+        <div>
+          <label for="rSearch">Search 1,000,000+ German Companies / CEOs / HRB</label>
+          <input type="text" id="rSearch" placeholder="e.g. Siemens, München, HRB, Oliver..." onkeydown="if(event.key==='Enter')loadRegistry()" />
+        </div>
+        <div>
+          <label for="rLegalForm">Legal Form</label>
+          <select id="rLegalForm" onchange="loadRegistry()">
+            <option value="">All Legal Forms</option>
+            <option value="GmbH">GmbH</option>
+            <option value="UG">UG (haftungsbeschränkt)</option>
+            <option value="GmbH & Co. KG">GmbH &amp; Co. KG</option>
+            <option value="AG">AG</option>
+            <option value="SE">SE</option>
+            <option value="e.K.">e.K.</option>
+          </select>
+        </div>
+        <div>
+          <label for="rState">Federal State (Bundesland)</label>
+          <select id="rState" onchange="loadRegistry()">
+            <option value="">All Federal States</option>
+            <option value="Bayern">Bayern</option>
+            <option value="Nordrhein-Westfalen">Nordrhein-Westfalen</option>
+            <option value="Baden-Württemberg">Baden-Württemberg</option>
+            <option value="Berlin">Berlin</option>
+            <option value="Hessen">Hessen</option>
+            <option value="Hamburg">Hamburg</option>
+            <option value="Niedersachsen">Niedersachsen</option>
+            <option value="Sachsen">Sachsen</option>
+          </select>
+        </div>
+        <div class="check-group">
+          <label><input type="checkbox" id="rHasCeo" checked onchange="loadRegistry()" /> Require Registered CEO</label>
+        </div>
+        <div class="btn-row">
+          <button class="btn" onclick="loadRegistry()">Query 1M Lakehouse</button>
+        </div>
+      </div>
+
+      <div class="meta-strip">
+        <span id="registryResultMeta">Querying DuckDB columnar lakehouse...</span>
+        <span>Source: OffeneRegister (German Handelsregister) + Entity-Resolved Domains</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Register ID</th>
+              <th>Legal Company Name</th>
+              <th>Form</th>
+              <th>Federal State &amp; City</th>
+              <th>Registered CEO / Officers (Geschäftsführer)</th>
+              <th>Linked Domain</th>
+            </tr>
+          </thead>
+          <tbody id="registryTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: SCRAPY CLUSTER & N8N -->
+    <section id="tab-cluster" class="tab-pane">
+      <div class="split-grid">
+        <div class="card-box">
+          <h3>Launch Live Scrapy + curl_cffi Worker Sweep</h3>
+          <p class="sub-line">Spawns an isolated Scrapy 2.19 AsyncioSelectorReactor worker process (`/` -&gt; `/impressum` &amp; `/kontakt`, max 3 requests/domain).</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;">
+            <div>
+              <label for="cLimit">Domain Batch Limit</label>
+              <input type="number" id="cLimit" value="15" min="1" max="1000" />
+            </div>
+            <div>
+              <label for="cConcurrency">Concurrent Requests</label>
+              <input type="number" id="cConcurrency" value="32" min="1" max="256" />
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <label for="cDomains">Custom Target Domains (optional, comma-separated; leave blank for DuckDB frontier)</label>
+            <input type="text" id="cDomains" placeholder="e.g. thomann.de, personio.de, shopware.com" />
+          </div>
+          <div class="check-group" style="margin-top:12px;">
+            <label><input type="checkbox" id="cForceCffi" /> Force Tier-2 curl_cffi Chrome 124 TLS on all requests</label>
+          </div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn" onclick="triggerCrawlJob()">Start Scrapy Sweep</button>
+            <button class="btn secondary" onclick="refreshWorkerLogs()">Refresh Worker Logs</button>
+          </div>
+          <pre class="console-box" id="workerLogConsole">Ready. Click "Start Scrapy Sweep" to launch a live crawl worker.</pre>
+        </div>
+
+        <div class="card-box">
+          <h3>n8n Agency Lead Router Feed (`GET /api/v1/n8n/hot-leads`)</h3>
+          <p class="sub-line">Live JSON feed consumed by `workflows/n8n_b2b_lead_router.json` for leads with `Score &gt;= 75` + verified email, including personalized German outreach drafts.</p>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn" onclick="loadN8nPreview()">Preview Unprocessed Hot Leads Payload</button>
+          </div>
+          <pre class="console-box" id="n8nPreviewConsole">Click "Preview Unprocessed Hot Leads Payload" to inspect the live n8n integration payload.</pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function esc(val) {
+      if (val === null || val === undefined) return "";
+      return String(val)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function switchTab(name, btn) {
+      document.querySelectorAll(".tab-pane").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(el => el.classList.remove("active"));
+      document.getElementById("tab-" + name).classList.add("active");
+      btn.classList.add("active");
+      if (name === "registry") loadRegistry();
+      if (name === "cluster") { refreshWorkerLogs(); loadN8nPreview(); }
+    }
+
+    async function loadStats() {
+      const resp = await fetch("/api/v1/stats");
+      const data = await resp.json();
+      document.getElementById("olapSpeedBadge").textContent = `DuckDB OLAP: ${data.olap_query_ms} ms`;
+
+      const redisBadge = document.getElementById("redisBadge");
+      if (data.redis && data.redis.connected) {
+        redisBadge.textContent = `Redis Cluster: ${data.redis.queued_urls.toLocaleString()} queued`;
+        redisBadge.className = "badge-pill ok";
+      } else {
+        redisBadge.textContent = "Mode: DuckDB Standalone (Zero-Docker)";
+        redisBadge.className = "badge-pill";
+      }
+
+      document.getElementById("kpiRegistryRows").textContent = data.registry.total_rows.toLocaleString();
+      document.getElementById("kpiRegistryCeo").textContent = `${data.registry.with_ceo.toLocaleString()} with registered CEO`;
+      document.getElementById("kpiFrontierTotal").textContent = data.frontier.total_domains.toLocaleString();
+      document.getElementById("kpiFrontierLinked").textContent = `${data.frontier.prelinked_domains.toLocaleString()} pre-linked to HRB/HRA`;
+      document.getElementById("kpiLeadsTotal").textContent = data.leads.total_leads.toLocaleString();
+      document.getElementById("kpiLeadsContacts").textContent = `${data.leads.with_email.toLocaleString()} emails | ${data.leads.with_ceo.toLocaleString()} CEOs`;
+      document.getElementById("kpiHotLeads").textContent = data.leads.hot_leads.toLocaleString();
+      document.getElementById("kpiAvgScore").textContent = `Avg score: ${data.leads.avg_score} / 100`;
+      document.getElementById("kpiEscalated").textContent = data.leads.escalated_curl_cffi.toLocaleString();
+      document.getElementById("kpiEcomCount").textContent = `${data.leads.ecommerce_leads.toLocaleString()} E-Commerce storefronts`;
+    }
+
+    function buildLeadQueryParams() {
+      const p = new URLSearchParams();
+      const s = document.getElementById("fSearch").value.trim();
+      const seg = document.getElementById("fSegment").value;
+      const cms = document.getElementById("fCms").value;
+      const reqPx = document.getElementById("fReqPixel").value;
+      const missPx = document.getElementById("fMissPixel").value;
+      const minScore = document.getElementById("fMinScore").value || "0";
+      if (s) p.set("search", s);
+      if (seg) p.set("pitch_segment", seg);
+      if (cms) p.set("cms", cms);
+      if (reqPx) p.set("require_pixel", reqPx);
+      if (missPx) p.set("missing_pixel", missPx);
+      p.set("min_score", minScore);
+      if (document.getElementById("fHasEmail").checked) p.set("has_email", "true");
+      if (document.getElementById("fHasCeo").checked) p.set("has_ceo", "true");
+      return p;
+    }
+
+    async function loadLeads() {
+      const p = buildLeadQueryParams();
+      p.set("limit", "100");
+      const resp = await fetch("/api/v1/leads?" + p.toString());
+      const data = await resp.json();
+
+      document.getElementById("leadsResultMeta").innerHTML =
+        `Showing <strong>${data.items.length}</strong> of <strong>${data.total.toLocaleString()}</strong> matching leads (queried in <strong>${data.query_ms} ms</strong>)`;
+
+      const tbody = document.getElementById("leadsTableBody");
+      if (!data.items.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:28px;">No leads match current filter criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = data.items.map(item => {
+        const cls = item.lead_score >= 75 ? "score-hot" : (item.lead_score >= 45 ? "score-mid" : "score-low");
+        const stackTags = [];
+        if (item.primary_cms) stackTags.push(`<span class="tag cms">${esc(item.primary_cms)}</span>`);
+        if (item.primary_crm) stackTags.push(`<span class="tag cms">${esc(item.primary_crm)}</span>`);
+        if (item.consent_cmp) stackTags.push(`<span class="tag">${esc(item.consent_cmp)}</span>`);
+
+        const pixelTags = (item.ad_pixels || []).map(px => `<span class="tag pixel">${esc(px)}</span>`).join("");
+        const missingGaps = [];
+        if (item.has_google_ads && !item.has_meta_pixel) missingGaps.push(`<span class="tag gap">No Meta Pixel</span>`);
+        if (item.has_google_ads && !item.has_tiktok_pixel) missingGaps.push(`<span class="tag gap">No TikTok</span>`);
+        if (item.is_ecommerce && !item.primary_crm) missingGaps.push(`<span class="tag gap">No Retention CRM</span>`);
+
+        const regBadge = [item.register_code, item.vat_id].filter(Boolean).join(" | ");
+        const loc = [item.city, item.federal_state].filter(Boolean).join(", ");
+        const tierCls = item.transport_tier === "curl_cffi" ? "tag tier-cffi" : "tag";
+
+        return `<tr>
+          <td><span class="score-badge ${cls}">${item.lead_score}</span></td>
+          <td>
+            <a class="domain-link" href="https://${esc(item.domain)}" target="_blank" rel="noopener">${esc(item.domain)}</a>
+            <div class="sub-line">${esc(item.legal_name || item.site_title || "-")}</div>
+            ${regBadge ? `<div class="sub-line">${esc(regBadge)}</div>` : ""}
+            ${loc ? `<div class="sub-line">${esc(loc)}</div>` : ""}
+          </td>
+          <td>
+            <div><strong>${esc(item.ceo_name || "-")}</strong></div>
+            ${item.email ? `<div class="sub-line">${esc(item.email)}</div>` : ""}
+            ${item.phone ? `<div class="sub-line">${esc(item.phone)}</div>` : ""}
+          </td>
+          <td>${stackTags.join("") || '<span class="sub-line">Custom / Unknown</span>'}</td>
+          <td>${pixelTags || '<span class="sub-line">None detected</span>'}<div>${missingGaps.join("")}</div></td>
+          <td>
+            <div><span class="tag">${esc(item.pitch_segment)}</span></div>
+            <div class="sub-line">${esc(item.pitch_angle)}</div>
+          </td>
+          <td>
+            <span class="${tierCls}">${esc(item.transport_tier)}</span>
+            <div class="sub-line">${item.pages_crawled} page(s)</div>
+          </td>
+        </tr>`;
+      }).join("");
+    }
+
+    function resetLeadFilters() {
+      document.getElementById("fSearch").value = "";
+      document.getElementById("fSegment").value = "";
+      document.getElementById("fCms").value = "";
+      document.getElementById("fReqPixel").value = "";
+      document.getElementById("fMissPixel").value = "";
+      document.getElementById("fMinScore").value = "0";
+      document.getElementById("fHasEmail").checked = false;
+      document.getElementById("fHasCeo").checked = false;
+      loadLeads();
+    }
+
+    function downloadFilteredCsv() {
+      const p = buildLeadQueryParams();
+      window.location.href = "/api/v1/export/csv?" + p.toString();
+    }
+
+    async function loadRegistry() {
+      const p = new URLSearchParams();
+      const s = document.getElementById("rSearch").value.trim();
+      const lf = document.getElementById("rLegalForm").value;
+      const st = document.getElementById("rState").value;
+      if (s) p.set("search", s);
+      if (lf) p.set("legal_form", lf);
+      if (st) p.set("federal_state", st);
+      if (document.getElementById("rHasCeo").checked) p.set("has_ceo", "true");
+      p.set("limit", "60");
+
+      const resp = await fetch("/api/v1/registry?" + p.toString());
+      const data = await resp.json();
+      document.getElementById("registryResultMeta").innerHTML =
+        `Matched <strong>${data.total.toLocaleString()}</strong> German legal entities in <strong>${data.query_ms} ms</strong>`;
+
+      const tbody = document.getElementById("registryTableBody");
+      if (!data.items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px;">No registry rows loaded or matched. Run <code>uv run leadgen seed --rows 1000000</code>.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = data.items.map(r => `<tr>
+        <td><span class="tag">${esc(r.native_company_number || r.company_number)}</span></td>
+        <td><strong>${esc(r.legal_name)}</strong></td>
+        <td><span class="tag cms">${esc(r.legal_form)}</span></td>
+        <td>${esc([r.postal_code, r.city, r.federal_state].filter(Boolean).join(" "))}</td>
+        <td>${esc(r.ceo_names || "-")}</td>
+        <td>${r.matched_domain ? `<a class="domain-link" href="https://${esc(r.matched_domain)}" target="_blank">${esc(r.matched_domain)}</a>` : '<span class="sub-line">-</span>'}</td>
+      </tr>`).join("");
+    }
+
+    async function triggerCrawlJob() {
+      const payload = {
+        limit: parseInt(document.getElementById("cLimit").value || "15", 10),
+        concurrency: parseInt(document.getElementById("cConcurrency").value || "32", 10),
+        domains: document.getElementById("cDomains").value.trim(),
+        force_curl_cffi: document.getElementById("cForceCffi").checked,
+      };
+      const resp = await fetch("/api/v1/crawl/start", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        document.getElementById("workerLogConsole").textContent = "Error: " + (data.detail || JSON.stringify(data));
+        return;
+      }
+      pollWorkerUntilDone();
+    }
+
+    async function refreshWorkerLogs() {
+      const resp = await fetch("/api/v1/crawl/status");
+      const data = await resp.json();
+      const box = document.getElementById("workerLogConsole");
+      box.textContent = (data.logs && data.logs.length) ? data.logs.join("\n") : "No active worker logs.";
+      box.scrollTop = box.scrollHeight;
+      return data.running;
+    }
+
+    function pollWorkerUntilDone() {
+      const timer = setInterval(async () => {
+        const running = await refreshWorkerLogs();
+        if (!running) {
+          clearInterval(timer);
+          loadStats();
+          loadLeads();
+        }
+      }, 1500);
+    }
+
+    async function loadN8nPreview() {
+      const resp = await fetch("/api/v1/n8n/hot-leads?min_score=75&limit=3");
+      const data = await resp.json();
+      document.getElementById("n8nPreviewConsole").textContent = JSON.stringify(data, null, 2);
+    }
+
+    loadStats();
+    loadLeads();
+  </script>
+</body>
+</html>

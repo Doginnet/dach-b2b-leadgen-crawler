@@ -1,0 +1,88 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: leadgen
+      POSTGRES_PASSWORD: leadgen_secret
+      POSTGRES_DB: dach_leads
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadgen -d dach_leads"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    environment:
+      STORAGE_MODE: dual
+      USE_REDIS_FRONTIER: "true"
+      REDIS_URL: redis://redis:6379/0
+      POSTGRES_DSN: postgresql://leadgen:leadgen_secret@postgres:5432/dach_leads
+      WEB_HOST: 0.0.0.0
+      WEB_PORT: "8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # Scale horizontally across 4 CPU cores (4 workers x 64 slots = 256 concurrent HTTP connections):
+  # docker compose up -d --scale worker=4
+  worker:
+    build: .
+    command: ["uv", "run", "leadgen", "crawl", "--redis", "--concurrency", "64", "--log-level", "INFO"]
+    environment:
+      STORAGE_MODE: dual
+      USE_REDIS_FRONTIER: "true"
+      REDIS_URL: redis://redis:6379/0
+      POSTGRES_DSN: postgresql://leadgen:leadgen_secret@postgres:5432/dach_leads
+      CONCURRENT_REQUESTS: "64"
+      CONCURRENT_REQUESTS_PER_DOMAIN: "2"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      GENERIC_TIMEZONE: Europe/Berlin
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/workflows:ro
+    depends_on:
+      - web
+
+volumes:
+  redis_data:
+  postgres_data:
+  n8n_data:

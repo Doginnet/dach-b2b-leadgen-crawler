@@ -1,0 +1,50 @@
+[project]
+name = "dach-b2b-leadgen-crawler"
+version = "0.1.0"
+description = "Industrial 1M-Row Distributed DACH B2B Lead Generation, Impressum (§5 DDG) Decision-Maker & Ad-Tech Pixel Intelligence Crawler built with Scrapy, scrapy-redis, curl_cffi, DuckDB/Parquet, PostgreSQL, FastAPI & n8n"
+readme = "README.md"
+authors = [
+    { name = "Paprika", email = "doginnet@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "curl-cffi>=0.17.0",
+    "duckdb>=2.0.0",
+    "fastapi>=0.162.0",
+    "httpx>=0.28.1",
+    "loguru>=0.7.3",
+    "psycopg[binary]>=3.3.6",
+    "pyarrow>=26.0.0",
+    "pydantic>=2.14.2",
+    "pydantic-settings>=2.16.2",
+    "redis>=8.1.0",
+    "rich>=15.0.0",
+    "scrapy>=2.19.0",
+    "scrapy-redis>=0.9.1",
+    "selectolax>=1.0.2",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+leadgen = "src.cli:main"
+leadgen-web = "src.cli:run_web"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+markers = [
+    "unit: Offline deterministic unit tests for Impressum extraction, 25+ Ad-Tech signatures, scoring, DuckDB OLAP, and FastAPI endpoints",
+    "live: Live network integration tests verifying Scrapy + curl_cffi escalation against real .de corporate websites",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src", "config"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

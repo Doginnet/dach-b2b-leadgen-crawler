@@ -1,0 +1,39 @@
+# Virtual environments & Python cache
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+*.egg-info/
+.scrapy/
+
+# Secrets & Environment
+.env
+.env.local
+
+# Large 1M-row local databases, raw seed archives & runtime logs
+# (Showcase samples in data/samples/ ARE tracked for instant portfolio preview)
+data/raw/
+data/cache/
+data/lakehouse/
+data/*.duckdb
+data/*.duckdb.wal
+data/*.parquet
+!data/samples/
+!data/samples/*.parquet
+!data/samples/*.csv
+logs/
+
+# Internal Engineering & Notion Mirror Docs (kept in Notion, hidden from public repo)
+AGENTS.md
+PLAN.md
+PLAYBOOK.md
+SRS.md
+SCRAPER_SPEC.md
+TODO.md
+WORKFLOW.md
+docs/

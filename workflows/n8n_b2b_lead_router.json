@@ -1,0 +1,242 @@
+{
+  "name": "DACH B2B Ad-Spend Gap Lead Router & Outreach Engine",
+  "nodes": [
+    {
+      "id": "node-trigger",
+      "name": "Schedule_Trigger_30m",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 320],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-fetch",
+      "name": "Fetch_Unprocessed_Hot_Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 320],
+      "onError": "stopWorkflow",
+      "parameters": {
+        "method": "GET",
+        "url": "http://web:8080/api/v1/n8n/hot-leads?min_score=75&limit=25",
+        "options": {}
+      }
+    },
+    {
+      "id": "node-if",
+      "name": "Has_Qualified_Leads",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 320],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-count",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-split-code",
+      "name": "Split_Leads_Enrich_Pitch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 240],
+      "onError": "stopWorkflow",
+      "parameters": {
+        "jsCode": "const payload = $input.first().json;\nconst leads = payload.leads || [];\nreturn leads.map((lead) => ({\n  json: {\n    ...lead,\n    subject: lead.outreach_draft?.subject || `Kurze Frage zu ${lead.domain}`,\n    body_de: lead.outreach_draft?.body_de || '',\n    missing_pixels: [\n      !lead.has_meta_pixel ? 'Meta Pixel' : null,\n      !lead.has_tiktok_pixel ? 'TikTok Pixel' : null,\n      !lead.has_google_ads ? 'Google Ads' : null,\n    ].filter(Boolean)\n  }\n}));"
+      }
+    },
+    {
+      "id": "node-switch",
+      "name": "Route_Ad_Spend_Gap",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1180, 240],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rule-social",
+                    "leftValue": "={{ $json.pitch_segment }}",
+                    "rightValue": "PAID_SEARCH_MISSING_SOCIAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Paid_Social_Desk"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rule-crm",
+                    "leftValue": "={{ $json.pitch_segment }}",
+                    "rightValue": "ECOM_NO_RETENTION_CRM",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "CRM_Retention_Desk"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "node-desk-social",
+      "name": "Tag_Paid_Social_Desk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1460, 100],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "agency_desk", "type": "string", "value": "PAID_SOCIAL_ACQUISITION" },
+            { "id": "a2", "name": "domain", "type": "string", "value": "={{ $json.domain }}" },
+            { "id": "a3", "name": "email", "type": "string", "value": "={{ $json.email }}" },
+            { "id": "a4", "name": "ceo_name", "type": "string", "value": "={{ $json.ceo_name }}" },
+            { "id": "a5", "name": "outreach_body", "type": "string", "value": "={{ $json.body_de }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-desk-crm",
+      "name": "Tag_CRM_Retention_Desk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1460, 240],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "b1", "name": "agency_desk", "type": "string", "value": "CRM_LIFECYCLE_RETENTION" },
+            { "id": "b2", "name": "domain", "type": "string", "value": "={{ $json.domain }}" },
+            { "id": "b3", "name": "email", "type": "string", "value": "={{ $json.email }}" },
+            { "id": "b4", "name": "ceo_name", "type": "string", "value": "={{ $json.ceo_name }}" },
+            { "id": "b5", "name": "outreach_body", "type": "string", "value": "={{ $json.body_de }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-desk-perf",
+      "name": "Tag_Performance_B2B_Desk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1460, 380],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "c1", "name": "agency_desk", "type": "string", "value": "FULL_FUNNEL_PERFORMANCE_B2B" },
+            { "id": "c2", "name": "domain", "type": "string", "value": "={{ $json.domain }}" },
+            { "id": "c3", "name": "email", "type": "string", "value": "={{ $json.email }}" },
+            { "id": "c4", "name": "ceo_name", "type": "string", "value": "={{ $json.ceo_name }}" },
+            { "id": "c5", "name": "outreach_body", "type": "string", "value": "={{ $json.body_de }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-ack",
+      "name": "Mark_Lead_Exported",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1740, 240],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "http://web:8080/api/v1/n8n/mark-exported",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ domains: [$json.domain] }) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Schedule_Trigger_30m": {
+      "main": [[{ "node": "Fetch_Unprocessed_Hot_Leads", "type": "main", "index": 0 }]]
+    },
+    "Fetch_Unprocessed_Hot_Leads": {
+      "main": [[{ "node": "Has_Qualified_Leads", "type": "main", "index": 0 }]]
+    },
+    "Has_Qualified_Leads": {
+      "main": [
+        [{ "node": "Split_Leads_Enrich_Pitch", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Split_Leads_Enrich_Pitch": {
+      "main": [[{ "node": "Route_Ad_Spend_Gap", "type": "main", "index": 0 }]]
+    },
+    "Route_Ad_Spend_Gap": {
+      "main": [
+        [{ "node": "Tag_Paid_Social_Desk", "type": "main", "index": 0 }],
+        [{ "node": "Tag_CRM_Retention_Desk", "type": "main", "index": 0 }],
+        [{ "node": "Tag_Performance_B2B_Desk", "type": "main", "index": 0 }]
+      ]
+    },
+    "Tag_Paid_Social_Desk": {
+      "main": [[{ "node": "Mark_Lead_Exported", "type": "main", "index": 0 }]]
+    },
+    "Tag_CRM_Retention_Desk": {
+      "main": [[{ "node": "Mark_Lead_Exported", "type": "main", "index": 0 }]]
+    },
+    "Tag_Performance_B2B_Desk": {
+      "main": [[{ "node": "Mark_Lead_Exported", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
